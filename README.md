@@ -35,7 +35,15 @@ $ ln -s ../dev/colourededgerxlsx/src/R/colourededgerxlsx.r .
 
 # Usage
 
-There's a `--help` flag to the script that explains how to call it.
+There's a `--help` flag to the script that explains how to call it. A typical call
+looks like this:
+
+```
+$ colourededgerxlsx.r --verbose \
+  --seedtables=genome1.SEED.tsv,genome2.BAL450.SEED.tsv \
+  --outxlsx=coloured_edger.xlsx \
+  edger_table.tsv.gz
+```
 
 # Future plans
 
