@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(openxlsx))
 
-SCRIPT_VERSION = "0.1"
+SCRIPT_VERSION = "0.2"
 FDR_SIGN_LEVEL = 0.10
 
 SEEDCOLOURS = 
