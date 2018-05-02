@@ -62,11 +62,11 @@ option_list = list(
     help="List of tsv files containing a two column annotation table, must contain a key named like in the main table, but see also --keycol and --keysep."
   ),
   make_option(
-    '--keycol', action = 'store', type = 'character', default = 'feature=Features',
+    '--keycol', action = 'store', type = 'character', default = '',
     help = 'Name of column containing separated and column containing multiple keys respectively, separated by "=", default "%default"; see also --keysep.'
   ),
   make_option(
-    '--keysep', action = 'store', type = 'character', default = ',',
+    '--keysep', action = 'store', type = 'character', default = '',
     help = 'Character to use to split key column, default "%default"; see also --keycol.'
   ),
   make_option(
@@ -118,7 +118,7 @@ seed <- tibble(fn = str_split(opt$options$seedtables, ',')[[1]]) %>%
   mutate(d = map(fn, ~ read_tsv(., col_types = cols(.default = col_character())))) %>% 
   unnest() %>% select(-fn)
 
-if ( length(opt$options$keysep) ) {
+if ( length(opt$options$keysep) > 0 ) {
   oldkey <- sub('.*=', '', opt$options$keycol)
   newkey <- sub('=.*', '', opt$options$keycol)
   seed <- seed %>% separate_rows(!! oldkey, sep = opt$options$keysep) %>%
