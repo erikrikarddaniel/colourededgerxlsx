@@ -70,6 +70,10 @@ option_list = list(
     help = 'Character to use to split key column, default "%default"; see also --keycol.'
   ),
   make_option(
+    "--seedcolwidthcm", action="store", type="integer", default = 0,
+    help="SEED column widths in cm, default keep as is. DOESN'T WORK yet."
+  ),
+  make_option(
     "--seedtables", action="store", type="character",
     help="List of tsv files containing SEED classificiations, must contain a key named like in the main table, but see also --keycol and --keysep."
   ),
@@ -165,6 +169,13 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
       ws, cols = 1:4, rows = 1:(nrow(t) + 1), rule = sprintf('$A1 == "%s"', SEEDCOLOURS$Category[i]),
       style = createStyle(fontColour = SEEDCOLOURS$fontColour[i], bgFill = SEEDCOLOURS$bgFill[i])
     )
+  }
+
+  # Can't get this to work!
+  if ( opt$options$seedcolwidthcm > 0 ) {
+    #wb %>% setColWidths(ws, cols = 1:(logfcindex - 1), widths = opt$options$seedcolwidthcm)
+    #wb %>% setColWidths(ws, cols = 1:2, widths = c(10, 8))
+    #wb %>% setColWidths(ws, cols = 3:(logfcindex - 1), widths = sprintf("%f cm", opt$options$seedcolwidthcm * 2.6))
   }
 
   # Heatmaps for logFC
