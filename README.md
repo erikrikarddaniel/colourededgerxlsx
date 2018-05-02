@@ -35,8 +35,12 @@ $ ln -s ../dev/colourededgerxlsx/src/R/colourededgerxlsx.r .
 
 # Usage
 
-There's a `--help` flag to the script that explains how to call it. A typical call
-looks like this:
+There's a `--help` flag to the script that explains how to call it. Here are a few
+examples.
+
+## Only SEED annotation(s)
+
+A typical call with only a SEED annotation looks like this:
 
 ```
 $ colourededgerxlsx.r --verbose \
@@ -45,11 +49,26 @@ $ colourededgerxlsx.r --verbose \
   edger_table.tsv.gz
 ```
 
+*Note* in the above that two genomes were involved. Just type a comma-separated list
+of SEED annotation files.
+
+## Secondary annotation
+
+If your SEED annotation isn't complete (typical case) you can add a second set of
+annotations. These tables must only have two columns: one is the key, and that must
+be the same as in the EdgeR table and SEED annotations, the other a column with
+any name.
+
+```
+$ colourededgerxlsx.r --verbose \
+  --seedtables=genome1.SEED.tsv,genome2.BAL450.SEED.tsv \
+  --annottables=genome1.rast.tsv,genome2.rast.tsv \
+  --outxlsx=coloured_edger.xlsx \
+  edger_table.tsv.gz
+```
+
 # Future plans
 
-* *Version 0.2*: Add actual counts/cpms for samples from a table.
-
-* *Version 0.3*: Add second functional annotation for genes not in the
-SEED table(s).
+* *Version 0.3*: Add actual counts/cpms for samples from a table.
 
 * *Version 0.4*: Translate sample names with translation table.
