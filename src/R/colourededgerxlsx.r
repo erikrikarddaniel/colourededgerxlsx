@@ -58,6 +58,10 @@ SEEDCOLOURS <- as.tibble(SEEDCOLOURS)
 # Get arguments
 option_list = list(
   make_option(
+    "--annottables", action="store", type="character",
+    help="List of tsv files containing a two column annotation table, must contain a key named like in the main table, but see also --keycol and --keysep."
+  ),
+  make_option(
     '--keycol', action = 'store', type = 'character', default = 'feature=Features',
     help = 'Name of column containing separated and column containing multiple keys respectively, separated by "=", default "%default"; see also --keysep.'
   ),
@@ -117,6 +121,15 @@ if ( length(opt$options$keysep) ) {
     rename(!! newkey := !! oldkey)
 }
 
+# Read any other annotation tables and add to seed table
+if ( length(opt$options$annottables) > 0 ) {
+  logmsg(sprintf("Reading annotation tables %s", opt$options$annottables))
+  annot <- tibble(fn = str_split(opt$options$annottables, ',')[[1]]) %>% 
+    mutate(d = map(fn, ~ read_tsv(., col_types = cols(.default = col_character())))) %>% 
+    unnest() %>% select(-fn)
+  seed <- seed %>% right_join(annot)
+}
+
 logmsg(sprintf("Reading %s, left joining with SEED table", opt$args))
 edger <- seed %>% 
   right_join(
@@ -133,6 +146,8 @@ edger <- seed %>%
 
 fill_worksheet <- function(wb, ws, c, fdrlimit) {
   logmsg(sprintf("\tCreating sheet for %s, fdrlimit %f", c, fdrlimit))
+  logfcindex = ifelse(length(opt$options$annottables) > 0, 7, 6)
+
   t <- edger %>% filter(FDR <= fdrlimit, contrast == c) %>% 
     select(-contrast) %>%
     arrange(Category, Subcategory, Subsystem, Role)
@@ -161,7 +176,7 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   )
   for ( i in 1:nrow(FC_NEGATIVE_HEATMAP) ) {
     wb %>% conditionalFormatting(
-      ws, cols = 6, rows = 2:(nrow(t) + 1), rule = sprintf(' < %s', FC_NEGATIVE_HEATMAP$maxval[i]),
+      ws, cols = logfcindex, rows = 2:(nrow(t) + 1), rule = sprintf(' < %s', FC_NEGATIVE_HEATMAP$maxval[i]),
       style = createStyle(fontColour = FC_NEGATIVE_HEATMAP$fontColour[i], bgFill = FC_NEGATIVE_HEATMAP$bgFill[i])
     )
   }
@@ -172,7 +187,7 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   )
   for ( i in 1:nrow(FC_POSITIVE_HEATMAP) ) {
     wb %>% conditionalFormatting(
-      ws, cols = 6, rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', FC_POSITIVE_HEATMAP$minval[i]),
+      ws, cols = logfcindex, rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', FC_POSITIVE_HEATMAP$minval[i]),
       style = createStyle(fontColour = FC_POSITIVE_HEATMAP$fontColour[i], bgFill = FC_POSITIVE_HEATMAP$bgFill[i])
     )
   }
@@ -186,12 +201,12 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   )
   for ( i in 1:nrow(CPM_HEATMAP) ) {
     wb %>% conditionalFormatting(
-      ws, cols = 7, rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', CPM_HEATMAP$maxval[i]),
+      ws, cols = logfcindex + 1, rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', CPM_HEATMAP$maxval[i]),
       style = createStyle(fontColour = CPM_HEATMAP$fontColour[i], bgFill = CPM_HEATMAP$bgFill[i])
     )
 # Waiting until we join in cpm table(s)
 ###    wb %>% conditionalFormatting(
-###      ws, cols = 9:ncol(t), rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', 2**CPM_HEATMAP$maxval[i]),
+###      ws, cols = (logfcindex + 3):ncol(t), rows = 2:(nrow(t) + 1), rule = sprintf(' > %s', 2**CPM_HEATMAP$maxval[i]),
 ###      style = createStyle(fontColour = CPM_HEATMAP$fontColour[i], bgFill = CPM_HEATMAP$bgFill[i])
 ###    )
   }
@@ -199,15 +214,15 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   # Colours for FDR
   #logmsg("\tSetting colours for FDR", 'DEBUG')
   wb %>% conditionalFormatting(
-    ws, cols = 10, rows = 2:(nrow(t) + 1), rule = '<= 0.10',
+    ws, cols = logfcindex + 4, rows = 2:(nrow(t) + 1), rule = '<= 0.10',
     style = createStyle(fontColour = 'black', bgFill = 'yellow')
   )
   wb %>% conditionalFormatting(
-    ws, cols = 10, rows = 2:(nrow(t) + 1), rule = '<= 0.05',
+    ws, cols = logfcindex + 4, rows = 2:(nrow(t) + 1), rule = '<= 0.05',
     style = createStyle(fontColour = 'black', bgFill = 'green')
   )
   wb %>% conditionalFormatting(
-    ws, cols = 10, rows = 2:(nrow(t) + 1), rule = '> 0.10',
+    ws, cols = logfcindex + 4, rows = 2:(nrow(t) + 1), rule = '> 0.10',
     style = createStyle(fontColour = 'black', bgFill = 'red')
   )
   logmsg(sprintf("\tDone with %s", c))
