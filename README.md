@@ -69,6 +69,8 @@ $ colourededgerxlsx.r --verbose \
 
 # Future plans
 
-* *Version 0.3*: Add actual counts/cpms for samples from a table.
+* *Version 0.3*: Parse EC numbers from SEED or other annotation to new column
 
-* *Version 0.4*: Translate sample names with translation table.
+* *Version 0.4*: Add actual counts/cpms for samples from a table.
+
+* *Version 0.5*: Translate sample names with translation table.
