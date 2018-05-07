@@ -33,6 +33,9 @@ $ cd ~/bin
 $ ln -s ../dev/colourededgerxlsx/src/R/colourededgerxlsx.r .
 ```
 
+The script uses a couple of libraries that you might have to install (tidyverse, openxlsx
+and optparse). Run the script and install any missing package.
+
 # Usage
 
 There's a `--help` flag to the script that explains how to call it. Here are a few
