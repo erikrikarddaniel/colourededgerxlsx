@@ -153,7 +153,7 @@ edger <- seed %>%
       )
     )
   ) %>%
-  replace_na(list(seed1 = 'ZZ Not in SEED'))
+  replace_na(list(Category = 'ZZ Not in SEED'))
 
 fill_worksheet <- function(wb, ws, c, fdrlimit) {
   logmsg(sprintf("\tCreating sheet for %s, fdrlimit %f", c, fdrlimit))
