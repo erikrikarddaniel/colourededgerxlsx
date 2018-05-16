@@ -4,6 +4,9 @@
 #
 # Author: daniel.lundin@lnu.se
 
+#edger <- read_tsv("src/R-test/colourededgerxlsx.edger.tsv")
+#seed <- read_tsv("src/R-test/colourededgerxlsx.seed.tsv")
+
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(stringr))
@@ -14,7 +17,7 @@ suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(openxlsx))
 
 SCRIPT_VERSION = "0.2.1"
-FDR_SIGN_LEVEL = 0.10
+#FDR_SIGN_LEVEL = 0.10
 
 SEEDCOLOURS = 
   matrix(
@@ -88,6 +91,10 @@ option_list = list(
   make_option(
     c("-V", "--version"), action="store_true", default=FALSE, 
     help="Print program version and exit"
+  ),
+  make_option(
+    c("-F", "--FDR"), action="store_true", default = 0.10,
+    help="Set FDR significance threshold, default = 0.10"
   )
 )
 opt = parse_args(
@@ -106,7 +113,7 @@ if ( opt$options$version ) {
 logmsg = function(msg, llevel='INFO') {
   if ( opt$options$verbose ) {
     write(
-      sprintf("%s: %s: %s", llevel, format(Sys.time(), "%Y-%m-%d %H:%M:%S"), msg),
+      sprintf("%s: %s: %s", llevel, format(Sys.time(), '%Y-%m-%d, %H:%M:%S'), msg),
       stderr()
     )
   }
@@ -146,13 +153,13 @@ edger <- seed %>%
       )
     )
   ) %>%
-  replace_na(list('Category' = 'ZZ Not in SEED'))
+  replace_na(list(Category = 'ZZ Not in SEED'))
 
 fill_worksheet <- function(wb, ws, c, fdrlimit) {
   logmsg(sprintf("\tCreating sheet for %s, fdrlimit %f", c, fdrlimit))
   logfcindex = ifelse(length(opt$options$annottables) > 0, 7, 6)
 
-  t <- edger %>% filter(FDR <= fdrlimit, contrast == c) %>% 
+  t <- edger %>% filter(FDR <= fdrlimit, contrast == c) %>%
     select(-contrast) %>%
     arrange(Category, Subcategory, Subsystem, Role)
   wb %>% writeData(ws, t, headerStyle = createStyle(textDecoration = 'bold'))
@@ -166,7 +173,7 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   for ( i in 1:nrow(SEEDCOLOURS) ) {
     #logmsg(sprintf("%s: %s, %s", SEEDCOLOURS$Category[i], SEEDCOLOURS$fontColour[i], SEEDCOLOURS$bgFill[i]), 'DEBUG')
     wb %>% conditionalFormatting(
-      ws, cols = 1:4, rows = 1:(nrow(t) + 1), rule = sprintf('$A1 == "%s"', SEEDCOLOURS$Category[i]),
+      ws, cols = 1:4, rows = 1:(nrow(t) + 1), rule = sprintf('$A1 == "%s"', SEEDCOLOURS$Category),
       style = createStyle(fontColour = SEEDCOLOURS$fontColour[i], bgFill = SEEDCOLOURS$bgFill[i])
     )
   }
@@ -239,10 +246,13 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   logmsg(sprintf("\tDone with %s", c))
 }
 
+# Print chosen FDR threshold
+logmsg(sprintf("Chosen FDR threshold %s", opt$options$FDR))
+
 wb <- createWorkbook()
 for ( c in edger %>% distinct(contrast) %>% pull(contrast) ) {
   sh <- wb %>% addWorksheet(sprintf('%s_SIGN', c))
-  fill_worksheet(wb, sh, c, FDR_SIGN_LEVEL)
+  fill_worksheet(wb, sh, c, opt$options$FDR)
   sh <- wb %>% addWorksheet(sprintf('%s_ALL', c))
   fill_worksheet(wb, sh, c, 1.0)
 }
