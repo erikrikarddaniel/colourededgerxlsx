@@ -93,8 +93,8 @@ option_list = list(
     help="Print program version and exit"
   ),
   make_option(
-    c("-F", "--FDR"), action="store_true", default = 0.10,
-    help="Set FDR significance threshold, default = 0.10"
+    c("-F", "--FDR"), action="store", type="double", default = 0.10,
+    help="Set FDR significance threshold, default = %default"
   )
 )
 opt = parse_args(
@@ -247,12 +247,12 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
 }
 
 # Print chosen FDR threshold
-logmsg(sprintf("Chosen FDR threshold %s", opt$options$FDR))
+logmsg(sprintf("\tChosen FDR threshold %s", opt$options$FDR))
 
 wb <- createWorkbook()
 for ( c in edger %>% distinct(contrast) %>% pull(contrast) ) {
   sh <- wb %>% addWorksheet(sprintf('%s_SIGN', c))
-  fill_worksheet(wb, sh, c, opt$options$FDR)
+  fill_worksheet(wb, sh, c, opt$options$FDR) # or FDR see above
   sh <- wb %>% addWorksheet(sprintf('%s_ALL', c))
   fill_worksheet(wb, sh, c, 1.0)
 }
