@@ -1,4 +1,4 @@
-colourededgerxlsx: colourededgerxlsx.00 colourededgerxlsx.01 colourededgerxlsx.02
+colourededgerxlsx: colourededgerxlsx.00 colourededgerxlsx.01 colourededgerxlsx.02 colourededgerxlsx.04
 
 # Version 0.1
 colourededgerxlsx.00:
@@ -18,6 +18,11 @@ colourededgerxlsx.02:
 # with one seed table and seedhier only (not working yet)
 colourededgerxlsx.03:
 	@../R/colourededgerxlsx.r --verbose --seedtables=$@.seed.tsv --outxlsx=$@.xlsx $@.edger.tsv
+	@echo "*** This is *not* an automated test, check $@.xlsx manually! ***"
+
+# Quicker version 0.1
+colourededgerxlsx.04:
+	@../R/colourededgerxlsx.r --verbose --seedtables=BAL334.SEED.tsv,BAL450.SEED.tsv --keysep=, --keycol=feature=Features --outxlsx=$@.xlsx $@.tsv.gz
 	@echo "*** This is *not* an automated test, check $@.xlsx manually! ***"
 
 # Not ready yet
