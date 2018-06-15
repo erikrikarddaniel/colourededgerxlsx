@@ -17,7 +17,6 @@ suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(openxlsx))
 
 SCRIPT_VERSION = "0.2.3"
-#FDR_SIGN_LEVEL = 0.10
 
 SEEDCOLOURS = 
   matrix(
@@ -169,9 +168,9 @@ fill_worksheet <- function(wb, ws, c, fdrlimit) {
   wb %>% addStyle(ws, style = createStyle(numFmt = '0.0E00'), cols = 9:ncol(t), rows = 2:(nrow(t) + 1), gridExpand = TRUE)
   
   # Colour coding for SEED categories
-  logmsg(sprintf("\tSetting SEED category colours"), 'DEBUG')
+  #logmsg(sprintf("\tSetting SEED category colours"), 'DEBUG')
   for ( i in 1:nrow(SEEDCOLOURS) ) {
-    logmsg(sprintf("%s: %s, %s", SEEDCOLOURS$Category[i], SEEDCOLOURS$fontColour[i], SEEDCOLOURS$bgFill[i]), 'DEBUG')
+    #logmsg(sprintf("%s: %s, %s", SEEDCOLOURS$Category[i], SEEDCOLOURS$fontColour[i], SEEDCOLOURS$bgFill[i]), 'DEBUG')
     wb %>% conditionalFormatting(
       ws, cols = 1:4, rows = 1:(nrow(t) + 1), rule = sprintf('$A1 == "%s"', SEEDCOLOURS$Category[i]),
       style = createStyle(fontColour = SEEDCOLOURS$fontColour[i], bgFill = SEEDCOLOURS$bgFill[i])
