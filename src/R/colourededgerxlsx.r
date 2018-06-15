@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(openxlsx))
 
-SCRIPT_VERSION = "0.2.3"
+SCRIPT_VERSION = "0.2.4"
 
 SEEDCOLOURS = 
   matrix(
@@ -125,10 +125,12 @@ seed <- tibble(fn = str_split(opt$options$seedtables, ',')[[1]]) %>%
   unnest() %>% select(-fn)
 
 if ( length(opt$options$keysep) > 0 ) {
+  seed %>% write_tsv('/tmp/seed_before_sep.tsv')
   oldkey <- sub('.*=', '', opt$options$keycol)
   newkey <- sub('=.*', '', opt$options$keycol)
-  seed <- seed %>% separate_rows(!! oldkey, sep = opt$options$keysep) %>%
+  seed <- seed %>% separate_rows(!! oldkey, sep = sprintf(" *%s *", opt$options$keysep)) %>%
     rename(!! newkey := !! oldkey)
+  seed %>% write_tsv('/tmp/seed_after_sep.tsv')
 }
 
 # Read any other annotation tables and add to seed table
