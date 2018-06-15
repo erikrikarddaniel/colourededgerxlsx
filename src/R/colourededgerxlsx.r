@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(openxlsx))
 
-SCRIPT_VERSION = "0.2.1"
+SCRIPT_VERSION = "0.2.2"
 #FDR_SIGN_LEVEL = 0.10
 
 SEEDCOLOURS = 
@@ -62,7 +62,7 @@ SEEDCOLOURS <- as.tibble(SEEDCOLOURS)
 option_list = list(
   make_option(
     "--annottables", action="store", type="character",
-    help="List of tsv files containing a two column annotation table, must contain a key named like in the main table, but see also --keycol and --keysep."
+    help="List of tsv files containing a two column annotation tables, must contain a key named like in the main table, but see also --keycol and --keysep."
   ),
   make_option(
     '--keycol', action = 'store', type = 'character', default = '',
@@ -138,7 +138,7 @@ if ( length(opt$options$annottables) > 0 ) {
   annot <- tibble(fn = str_split(opt$options$annottables, ',')[[1]]) %>% 
     mutate(d = map(fn, ~ read_tsv(., col_types = cols(.default = col_character())))) %>% 
     unnest() %>% select(-fn)
-  seed <- seed %>% right_join(annot)
+  seed <- seed %>% full_join(annot)
 }
 
 logmsg(sprintf("Reading %s, left joining with SEED table", opt$args))
